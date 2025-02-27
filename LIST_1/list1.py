@@ -15,13 +15,11 @@ def dice_throw(how_much, flag, board):
         dice1 = rd.randint(1,6)
         dice2 = rd.randint(1,6)
         sum = place + dice1 + dice2
-        if ( sum > 39):
-            place = sum - 40
-        elif ( flag and sum == 29 ):
+        if ( flag and sum == 30 ):
             board[sum]= board[sum] + 1
             place = 10
         else:
-            place = sum
+            place = sum % 40
         board[place]= board[place] + 1
 
     in_percente(board, how_much)
