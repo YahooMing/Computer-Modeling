@@ -30,7 +30,7 @@ class Spots:
                 )
 
     def colide(self,x,y):
-        shifts = [(-1, -1), (-1, 0), (-1, 1), (0, -1),(0, 1),(1, -1), (1, 0), (1, 1)] # przesunięcia względem x y danej komórki żeby sprawdzić sąsiadujące ze sobą
+        shifts = [(0, 0), (-1, -1), (-1, 0), (-1, 1), (0, -1),(0, 1),(1, -1), (1, 0), (1, 1)] # przesunięcia względem x y danej komórki żeby sprawdzić sąsiadujące ze sobą
         living_cells = 0
         for dx, dy in shifts: #i,j to sa w tym przypadku przesunięcia
             close_cell_x , close_cell_y = (x+dx) % self.height, (y+dy)%self.width #modulo żeby sprawdzić warunek brzegowy
@@ -42,7 +42,7 @@ class Spots:
         for row in range(self.height):
             for col in range(self.width):
                 neighbours = self.colide(row, col)
-                if neighbours in [ 4, 6, 7, 8]:
+                if neighbours in [ 4, 6, 7, 8, 9]:
                     new_table[row][col] = 1
                 else:
                     new_table[row][col] = 0
@@ -52,7 +52,7 @@ class Spots:
         self.update()
         self.background.delete("all")
         self.draw()
-        self.base.after(500,self.play)
+        self.base.after(5,self.play)
 
 if __name__ == "__main__":
     base = tk.Tk()
