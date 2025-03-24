@@ -1,63 +1,43 @@
-import random
-import matplotlib.pyplot as plt
 import numpy as np
+import concurrent.futures
 
 class GameOfLife:
     def __init__(self, L, p0=0.5, steps=1000):
-        self.width = self.height = L
+        self.L = L
         self.p0 = p0
         self.steps = steps
-        self.table = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        self.random_table()
-
-    def random_table(self):
-        for row in range(self.height):
-            for col in range(self.width):
-                self.table[row][col] = 1 if random.random() < self.p0 else 0
-
-    def colide(self, x, y):
-        shifts = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-        living_cells = 0
-        for dx, dy in shifts:
-            close_cell_x, close_cell_y = (x + dx) % self.height, (y + dy) % self.width
-            living_cells += self.table[close_cell_x][close_cell_y]
-        return living_cells
-
+        # dla pythoniarzy, zróbcie macierz numpy'ową bo jest OP
+        self.table = np.random.choice([0, 1], size=(L, L), p=[1 - p0, p0])
+    
     def update(self):
-        new_table = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        for row in range(self.height):
-            for col in range(self.width):
-                mystate = self.table[row][col]
-                neighbours = self.colide(row, col)
-                if mystate == 1 and neighbours not in [2, 3]:
-                    new_table[row][col] = 0
-                elif mystate == 0 and neighbours == 3:
-                    new_table[row][col] = 1
-                else:
-                    new_table[row][col] = mystate
-        self.table = new_table
-
+        # za pomocą rolla przesuwa sie macierz pionowo, no nie? i za pomocą tego można obliczyć sąsiadów
+        neighbors = sum(np.roll(np.roll(self.table, dx, axis=0), dy, axis=1)
+                        for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+                        if not (dx == 0 and dy == 0))
+        new_table = ((self.table == 1) & ((neighbors == 2) | (neighbors == 3))) | \
+                    ((self.table == 0) & (neighbors == 3))
+        self.table = new_table.astype(int)
+    
     def play(self):
         for _ in range(self.steps):
             self.update()
-        return sum([sum(row) for row in self.table]) / (self.width * self.height)
+        return self.table.sum() / (self.L * self.L) # dens
 
-L_values = [10, 100, 200]
-N = 100
-p0 = 0.5
-steps = 1000
+def simulate(L, p0, steps):
+    game = GameOfLife(L, p0, steps)
+    return game.play()
 
-errors = []
-for L in L_values:
-    densities = [GameOfLife(L, p0, steps).play() for _ in range(N)]
-    std_error = np.std(densities) / np.sqrt(N)
-    errors.append(std_error)
+if __name__ == '__main__':
+    L_values = [10, 100, 200, 500, 1000]
+    N = 100
+    p0 = 0.5
+    steps = 1000
 
-plt.figure()
-plt.plot(L_values, errors, marker='o')
-plt.xscale("log")
-plt.xlabel("Rozmiar układu (L)")
-plt.ylabel("Błąd standardowy średniej")
-plt.title("Błąd standardowy średniej gęstości w zależności od L")
-plt.grid(True)
-plt.show()
+    errors = []
+    for L in L_values:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            densities = list(executor.map(simulate, [L] * N, [p0] * N, [steps] * N))
+        std_error = np.std(densities) / np.sqrt(N)
+        errors.append(std_error)
+        print(f"L = {L}: Średnia gęstość = {np.mean(densities):.4f}, Błąd standardowy = {std_error:.4f}")
+
