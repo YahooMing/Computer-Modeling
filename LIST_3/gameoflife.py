@@ -1,5 +1,6 @@
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
 class GameOfLife:
     def __init__(self, mode=1, p0=0.5, steps=1000):
@@ -74,4 +75,4 @@ if __name__ == "__main__":
     for p0 in p_values:
         game = GameOfLife(mode=2, p0=p0, steps=1000)
         density = game.play()
-        print(f"p0={p0}, gęstość końcowa={density[-1]}")
+        print(f"p0={p0}, gęstość końcowa={density[-1]}") 
