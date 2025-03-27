@@ -21,9 +21,14 @@ class GameOfLife:
         self.running = True
 
     def random_table(self):
+        living_cells = 0
         for row in range(self.height):
             for col in range(self.width):
-                self.table[row][col] = 1 if random.random() < self.p0 else 0
+                if random.random() < self.p0:
+                    self.table[row][col] = 1
+                    living_cells += 1
+                else:
+                    self.table[row][col] = 0
 
     def colide(self, x, y):
         shifts = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
@@ -57,8 +62,8 @@ class GameOfLife:
                 plt.pause(0.01)
         elif self.mode == 2:
             for i in range(self.steps):
-                self.update()
                 density.append(sum([sum(row) for row in self.table]) / (self.width * self.height))
+                self.update()
             plt.figure()
             plt.plot(density)
             plt.xlabel("Kroki")
@@ -75,4 +80,4 @@ if __name__ == "__main__":
     for p0 in p_values:
         game = GameOfLife(mode=2, p0=p0, steps=1000)
         density = game.play()
-        print(f"p0={p0}, gęstość końcowa={density[-1]}") 
+        print(f"p0={p0}, gęstość końcowa={density[-1]}")
