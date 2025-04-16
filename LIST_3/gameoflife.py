@@ -21,14 +21,9 @@ class GameOfLife:
         self.running = True
 
     def random_table(self):
-        living_cells = 0
         for row in range(self.height):
             for col in range(self.width):
-                if random.random() < self.p0:
-                    self.table[row][col] = 1
-                    living_cells += 1
-                else:
-                    self.table[row][col] = 0
+                self.table[row][col] = 1 if random.random() < self.p0 else 0
 
     def colide(self, x, y):
         shifts = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
@@ -53,16 +48,17 @@ class GameOfLife:
         self.table = new_table
 
     def play(self):
-        density = []
         if self.mode == 1:
+            plt.show(block=False)
             while self.running:
                 self.update()
-                inverted_table = [[1 - cell for cell in row] for row in self.table]
-                self.im.set_data(inverted_table)
+                self.im.set_data(self.table)
+                plt.draw()
                 plt.pause(0.01)
         elif self.mode == 2:
-            for i in range(self.steps):
-                density.append(sum([sum(row) for row in self.table]) / (self.width * self.height))
+            density = []
+            for _ in range(self.steps):
+                density.append(sum(sum(row) for row in self.table) / (self.width * self.height))
                 self.update()
             plt.figure()
             plt.plot(density)
@@ -76,8 +72,5 @@ class GameOfLife:
         self.running = False
 
 if __name__ == "__main__":
-    p_values = [0.05, 0.1, 0.3, 0.6, 0.75, 0.8, 0.95]
-    for p0 in p_values:
-        game = GameOfLife(mode=2, p0=p0, steps=1000)
-        density = game.play()
-        print(f"p0={p0}, gęstość końcowa={density[-1]}")
+    game = GameOfLife(mode=1, steps=1000)
+    game.play()

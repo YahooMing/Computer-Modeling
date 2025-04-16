@@ -32,7 +32,7 @@ def zipf(file):
         rank.append(x)
         frequency.append(freq)
 
-    plt.plot(rank, frequency)
+    plt.plot(rank, frequency, ".")
     plt.xscale('log')
     plt.yscale('log')
     plt.xlabel("Ranga")
@@ -49,3 +49,5 @@ def zipf(file):
 
 if __name__ == '__main__':
     zipf('PanTadeusz.txt')
+    zipf('zad2tekst.txt')
+    zipf('zad2tekst2.txt')
