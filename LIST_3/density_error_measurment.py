@@ -39,5 +39,5 @@ if __name__ == '__main__':
             densities = list(executor.map(simulate, [L] * N, [p0] * N, [steps] * N))
         std_error = np.std(densities) / np.sqrt(N)
         errors.append(std_error)
-        print(f"L = {L}: Średnia gęstość = {np.mean(densities):.4f}, Błąd standardowy = {std_error:.4f}")
+        print(f"L = {L}: Średnia gęstość = {np.mean(densities):.7f}, Błąd standardowy = {std_error:.7f}")
 
