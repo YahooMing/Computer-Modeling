@@ -2,14 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-# Parametry symulacji
-dt = 0.0015       # krok czasowy
-m = 1.0           # masa ciała
-G = 1.0           # stała grawitacyjna
-n_steps = 2000   # liczba kroków animacji/symulacji
-N = 3             # liczba ciał
+dt = 0.0015       
+m = 1.0           
+G = 1.0          
+n_steps = 2000   
+N = 3            
 
-W, H = 800, 800   # rozmiar "canvasu" (do skalowania pozycji)
+W, H = 800, 800  
 
 def avg_distance(x, y):
     """Oblicza średnią odległość między trzema ciałami."""
@@ -36,12 +35,11 @@ class ThreeBodySimulation:
         self.ym1 = np.zeros(self.N)
         
     def simulation_step(self):
-        """Wykonuje jeden krok symulacji (pierwszy krok metodą Eulera, potem Verlet)."""
+        """pierwszy krok metodą Eulera, potem Verlet"""
         self.step += 1
         fx = np.zeros(self.N)
         fy = np.zeros(self.N)
         
-        # Obliczanie sił działających między ciałami (suma dla każdej pary)
         for i in range(self.N):
             for j in range(i + 1, self.N):
                 dx = self.x[i] - self.x[j]
@@ -58,7 +56,6 @@ class ThreeBodySimulation:
                     fx[j] += Fx
                     fy[j] += Fy
 
-        # Pierwszy krok wykonujemy metodą Eulera
         if self.step == 1:
             for b in range(self.N):
                 self.vx[b] += (fx[b] / self.m) * self.dt
@@ -66,12 +63,11 @@ class ThreeBodySimulation:
                 self.xp1[b] = self.x[b] + self.vx[b] * self.dt
                 self.yp1[b] = self.y[b] + self.vy[b] * self.dt
         else:
-            # Kolejne kroki – metoda Verlet
+            #verlet
             for b in range(self.N):
                 self.xp1[b] = 2 * self.x[b] - self.xm1[b] + (self.dt**2 * fx[b] / self.m)
                 self.yp1[b] = 2 * self.y[b] - self.ym1[b] + (self.dt**2 * fy[b] / self.m)
         
-        # Aktualizacja poprzednich pozycji i obliczanie prędkości
         for b in range(self.N):
             self.xm1[b] = self.x[b]
             self.ym1[b] = self.y[b]
@@ -82,41 +78,35 @@ class ThreeBodySimulation:
             
         return avg_distance(self.x, self.y)
 
-# Warunki początkowe (bazowe)
 x0_base = [0.5 - 0.2, 0.5 + 0.2, 0.5]
 y0_base = [0.5 - 0.2, 0.5 - 0.2, 0.5 + 0.2]
 vx0_base = [0.93240737 / 2.0, 0.93240737 / 2.0, -0.93240737]
 vy0_base = [0.86473146 / 2.0, 0.86473146 / 2.0, -0.86473146]
 
-# Definicja perturbacji (efekt motyla)
 perturbation = 0.001
 
-# Utworzenie trzech symulacji
 sim1 = ThreeBodySimulation(x0_base, y0_base, vx0_base, vy0_base, dt, m, G)
 
 x0_2 = x0_base.copy()
 y0_2 = y0_base.copy()
-x0_2[0] += perturbation  # niewielka zmiana pozycji ciała 0
+x0_2[0] += perturbation
 sim2 = ThreeBodySimulation(x0_2, y0_2, vx0_base, vy0_base, dt, m, G)
 
 x0_3 = x0_base.copy()
 y0_3 = y0_base.copy()
-y0_3[1] += perturbation  # niewielka zmiana pozycji ciała 1
+y0_3[1] += perturbation
 sim3 = ThreeBodySimulation(x0_3, y0_3, vx0_base, vy0_base, dt, m, G)
 
-# Listy do zapisywania średnich odległości i kroków symulacji (do wykresu końcowego)
 avg_dist_sim1 = []
 avg_dist_sim2 = []
 avg_dist_sim3 = []
 steps = []
 
-# Przygotowanie figury z animacją
 fig, ax = plt.subplots()
 ax.set_xlim(0, W)
 ax.set_ylim(0, H)
 ax.set_aspect('equal')
 ax.set_title("Symulacja problemu trzech ciał")
-# Tworzymy trzy obiekty rysujące (dla trzech symulacji, każdy inny kolor)
 points1, = ax.plot([], [], 'o', markersize=6, color='black', label="Sim 1")
 points2, = ax.plot([], [], 'o', markersize=6, color='red',   label="Sim 2")
 points3, = ax.plot([], [], 'o', markersize=6, color='green', label="Sim 3")
@@ -124,7 +114,6 @@ txt = ax.text(10, H - 40, "", fontsize=16, color='blue')
 ax.legend(loc="upper right")
 
 def update(frame):
-    # Wykonujemy krok symulacji dla każdej z trzech symulacji
     steps.append(frame)
     d1 = sim1.simulation_step()
     d2 = sim2.simulation_step()
@@ -133,7 +122,6 @@ def update(frame):
     avg_dist_sim2.append(d2)
     avg_dist_sim3.append(d3)
     
-    # Skaluje pozycje symulacji do "canvasu" (analogicznie do kodu początkowego)
     xs1 = 98 * sim1.x + W / 2
     ys1 = 98 * sim1.y + H / 2
     xs2 = 98 * sim2.x + W / 2
@@ -146,11 +134,8 @@ def update(frame):
     points3.set_data(xs3, ys3)
     
     txt.set_text(f"Krok: {sim1.step}")
-    
-    # Jeśli osiągniemy ostatni krok, zatrzymujemy animację i wyświetlamy wykres średnich odległości
     if frame == n_steps - 1:
         ani.event_source.stop()
-        # Po animacji rysujemy wykres średnich odległości
         fig2, ax2 = plt.subplots(figsize=(10, 6))
         ax2.plot(steps, avg_dist_sim1, label="Symulacja 1 (warunki bazowe)")
         ax2.plot(steps, avg_dist_sim2, label="Symulacja 2 (perturbacja ciała 0)")
@@ -164,7 +149,6 @@ def update(frame):
     
     return points1, points2, points3, txt
 
-# Utworzenie animacji
 ani = FuncAnimation(fig, update, frames=n_steps, interval=1, blit=True)
 
 plt.show()
