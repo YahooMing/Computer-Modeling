@@ -12,6 +12,8 @@ for _ in range(n_spacerow):
     x = np.cumsum(np.random.choice([-1,1], size=n_krokow)) #suma kumulatywna
     y = np.cumsum(np.random.choice([-1,1], size=n_krokow))
     plt.plot(x,y,alpha=0.5)
+    plt.plot(x[0], y[0], 'go')  # początek
+    plt.plot(x[-1], y[-1], 'rx')  # koniec
 
 plt.title("2D")
 plt.axis('equal')
@@ -29,5 +31,7 @@ for _ in range(n_spacerow):
     y = np.cumsum(dy)
     z = np.cumsum(dz)
     ax.plot(x,y,z, alpha=0.6)
+    ax.scatter(x[0], y[0], z[0], c='green', marker='o')  # początek
+    ax.scatter(x[-1], y[-1], z[-1], c='red', marker='x')  # koniec
 ax.set_title('3D')
 plt.show()

@@ -19,7 +19,7 @@ n_sym = 1000
 kierunki1 = [np.array([1, 0]), np.array([-1, 0]), np.array([0, 1]), np.array([0, -1])]
 d1 = dyf(n, n_sym, kierunki1)
 
-kierunki2 = kierunki1 + [np.array([1, 1]), np.array([-1, -1]), np.array([-1, 1]), np.array([1, -1])]
+kierunki2 = kierunki1 +[np.array([1, 1]), np.array([-1, -1]), np.array([-1, 1]), np.array([1, -1])]
 d2 = dyf(n, n_sym, kierunki2)
 
 print(f'Dyfuzja 4 kierunki: {d1}')
